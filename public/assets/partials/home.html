@@ -1,1 +1,74 @@
-{{ home.name }}
+<form name="searchForm">
+  <div class="row">
+    <div class="col-md-3">
+      <div class="form-group">
+        <label for="query">Query</label>
+        <input type="text" id="query" name="query"
+               class="form-control"
+               placeholder="Required"
+               ng-model="query" required>
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <div class="form-group">
+        <label for="brandName">Brand Name</label>
+        <input type="text" id="brandName" name="brandName"
+               class="form-control"
+               ng-model="brandName">
+      </div>
+    </div>
+
+    <div class="col-md-1">
+      <div class="form-group">
+        <label for="numItems">Results</label>
+        <input type="text" id="numItems" name="numItems"
+               class="form-control"
+               placeholder="10"
+               ng-model="numItems">
+      </div>
+    </div>
+
+    <div class="col-md-1">
+      <div class="form-group">
+        <label for="startAt">Start At</label>
+        <input type="text" id="startAt" name="startAt"
+               class="form-control"
+               placeholder="0"
+               ng-model="startAt">
+      </div>
+    </div>
+
+    <div class="col-md-2">
+      <label for="form_sort_by">Sort By</label>
+      <select id="form_sort_by" name="sortBy"
+              class="form-control"
+              ng-model="sortBy"
+              ng-options="criteria.value as criteria.display for criteria in sortCriteria">
+        </option>
+      </select>
+    </div>
+
+    <div class="col-md-1">
+      <label></label>
+      <div>
+        <a ng-click="toggleHideAdvanced()">Hide Advanced</a>
+      </div>
+    </div>
+
+    <div class="col-md-1">
+      <label></label>
+      <div>
+        <button ng-click="submitForm(searchForm)" class="btn btn-primary">Add Products</button>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="pull-right">
+    </div>
+  </div>
+</form>
+
+<hr>
+
+{{ results }}

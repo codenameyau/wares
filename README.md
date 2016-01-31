@@ -1,5 +1,5 @@
 # wares
-Angular+materialize Walmart app
+Angular Walmart app
 
 ### Local Instructions
 Serve up a local http server using either python or node. We'll use port
