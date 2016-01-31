@@ -78,9 +78,9 @@
 <app-loader></app-loader>
 
 <!-- Results table. -->
-<div class="row">
+<div class="row"  ng-if="products.length">
   <div class="col-md-12">
-  <table class="product-table table table-striped table-bordered" ng-if="products">
+  <table class="product-table table table-striped table-bordered">
     <thead>
       <tr>
         <td>Product</td>
@@ -89,7 +89,9 @@
         <td>Price</td>
         <td title="Manufacturer's suggested retail price">MSRP</td>
         <td>Reviews</td>
-        <td></td>
+        <td title="Removes all items">
+          <a ng-click="removeAllProducts()">All</a>
+        </td>
       </tr>
     </thead>
 

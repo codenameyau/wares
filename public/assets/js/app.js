@@ -1,6 +1,7 @@
 'use strict';
 
-var app = angular.module('walmart-app', ['ui.router', 'restangular']);
+var app = angular.module('walmart-app',
+  ['ui.router', 'restangular', 'LocalStorageModule']);
 
 // Use relative paths for github pages.
 app.constant('PARTIALS_URL', '../assets/partials/');
@@ -15,8 +16,15 @@ app.constant('WALMART_API', 'http://api.walmartlabs.com/v1/');
 /********************************************************************
 * ROUTE CONFIGURATION
 *********************************************************************/
-app.config(function($stateProvider, $urlRouterProvider, PARTIALS_URL) {
+app.config(function(
+  $stateProvider, $urlRouterProvider, localStorageServiceProvider,
+  PARTIALS_URL) {
 
+  // CONFIGURE LOCAL STORAGE.
+  localStorageServiceProvider.setPrefix('walmart-app');
+  localStorageServiceProvider.setStorageType('localStorage');
+
+  // UI-ROUTER STATES.
   $stateProvider.state('home', {
     url: '/',
     controller: 'HomeController',
@@ -46,15 +54,52 @@ app.service('WalmartService', function(
   });
 });
 
+app.service('StorageService', function(localStorageService) {
+
+  this.getAllItems = function() {
+    var items = [];
+    var keys = localStorageService.keys();
+    for (var i=0; i<keys.length; i++) {
+      items.push(localStorageService.get(keys[i]));
+    } return items;
+  };
+
+  this.storeItem = function(item, key) {
+    var storedItem = localStorageService.get(item[key]);
+    if (storedItem) {
+      // User should be notified that item already exists.
+      console.log(storedItem);
+    } else {
+      return localStorageService.set(item[key], item);
+    }
+  };
+
+  this.storeList = function(list, key) {
+    for (var i=0; i<list.length; i++) {
+      this.storeItem(list[i], key);
+    }
+  };
+
+  this.removeItem = function(key) {
+    return localStorageService.remove(key);
+  };
+
+  this.clearStorage = function(regex) {
+    return localStorageService.clearAll(regex);
+  };
+
+});
+
 
 /********************************************************************
 * CONTROLLERS
 *********************************************************************/
-app.controller('HomeController', function ($scope, WalmartService) {
+app.controller('HomeController', function (
+  $scope, WalmartService, StorageService) {
 
   $scope.isLoading = false;
   $scope.hideAdvanced = false;
-  $scope.products = null;
+  $scope.products = StorageService.getAllItems();
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
     { value: 'price', display: 'Price' },
@@ -84,8 +129,19 @@ app.controller('HomeController', function ($scope, WalmartService) {
 
     promise.then(function(data) {
       $scope.isLoading = false;
-      $scope.products = data.items;
+      StorageService.storeList(data.items, 'itemId');
+      $scope.products = StorageService.getAllItems();
     });
+  };
+
+  $scope.removeProduct = function(product) {
+    StorageService.removeItem(product.itemId);
+    $scope.products = StorageService.getAllItems();
+  };
+
+  $scope.removeAllProducts = function() {
+    StorageService.clearStorage();
+    $scope.products = [];
   };
 
 });
