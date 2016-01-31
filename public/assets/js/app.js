@@ -46,22 +46,13 @@ app.service('WalmartService', function(
   });
 });
 
-app.service('UtilService', function($state) {
-
-  this.saveQueryToURL = function(params) {
-    $state.transitionTo($state.current.name, params, {notify: false});
-  };
-
-});
-
 
 /********************************************************************
 * CONTROLLERS
 *********************************************************************/
-app.controller('HomeController', function (
-  $scope, WalmartService, UtilService) {
+app.controller('HomeController', function ($scope, WalmartService) {
 
-  $scope.loaderActive = false;
+  $scope.isLoading = false;
   $scope.hideAdvanced = false;
   $scope.products = null;
   $scope.sortCriteria = [
@@ -79,7 +70,7 @@ app.controller('HomeController', function (
 
   $scope.submitForm = function(form) {
     if (!form.$valid) { return; }
-    $scope.loaderActive = true;
+    $scope.isLoading = true;
 
     var params = {
       query: $scope.query,
@@ -89,14 +80,62 @@ app.controller('HomeController', function (
       facet: 'on'
     };
 
-    // UtilService.saveQueryToURL(params);
-
     var promise = WalmartService.one('search').get(params);
+
     promise.then(function(data) {
-      $scope.loaderActive = false;
+      $scope.isLoading = false;
       $scope.products = data.items;
     });
-
   };
 
+});
+
+
+/********************************************************************
+* DIRECTIVES
+*********************************************************************/
+app.directive('appLoader', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+
+    template: function() {
+      return [
+        '<div ng-if="isLoading" class="loader">',
+        '<i class="fa fa-5x fa-crosshairs fa-spin"></i>',
+        '</div>'
+      ].join(' ');
+    }
+  };
+});
+
+app.directive('appRatingStars', function() {
+  return {
+    restrict: 'E',
+    transclude: true,
+    scope: {rating: '@'}, // '@' represents one-way binding.
+
+    controller: function($scope) {
+      $scope.stars = [];
+      var populateStars = function(count, value) {
+        for (var i=0; i<count; i++) { $scope.stars.push(value); }
+      };
+      var numFullStars = Math.floor($scope.rating);
+      var numHalfStars = ($scope.rating % 1) >= 0.5 ? 1 : 0;
+      var numEmptyStars = 5 - numFullStars - numHalfStars;
+      populateStars(numFullStars, 'full');
+      populateStars(numHalfStars, 'half');
+      populateStars(numEmptyStars, 'empty');
+    },
+
+    template: function() {
+      return [
+        '<span ng-repeat="n in stars track by $index">',
+        '<i ng-if="n === \'full\'" class="fa fa-star"></i>',
+        '<i ng-if="n === \'half\'" class="fa fa-star-half"></i>',
+        '<i ng-if="n === \'empty\'" class="fa fa-star fa-star-empty"></i>',
+        '</span>'
+      ].join(' ');
+    }
+  };
 });

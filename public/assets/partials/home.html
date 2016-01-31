@@ -72,10 +72,8 @@
 
 <hr>
 
-<!-- Spinner -->
-<div ng-if="loaderActive" class="loader">
-  <i class="fa fa-5x fa-crosshairs fa-spin"></i>
-</div>
+<!-- Loader directive. -->
+<app-loader></app-loader>
 
 <!-- Results table. -->
 <div class="row">
@@ -95,7 +93,7 @@
       <tr ng-repeat="product in products">
         <td class="product-name">
           <img ng-src="{{ product.thumbnailImage }}" alt="Product Thumbnail">
-          {{ product.name }}
+          <span>{{ product.name }}</span>
           <a target="_blank" href="{{ product.productUrl }}">
             <i class="fa fa-external-link"></i>
           </a>
@@ -106,7 +104,10 @@
         </td>
 
         <td class="product-category">
-          {{ product.categoryPath }}
+          <span title="{{ product.categoryPath }}">
+            {{ product.categoryPath | limitTo:50 }}
+            {{ product.categoryPath.length > 50 ? '&hellip;' : '' }}
+          </span>
         </td>
 
         <td class="product-price">
@@ -114,15 +115,19 @@
         </td>
 
         <td class="product-msrp">
-          {{ product.msrp }}
+          <span ng-if="product.msrp">{{ product.msrp }}</span>
         </td>
 
         <td class="product-reviews">
-          {{ product.customerRating }} ({{ product.numReviews }})
+          <span ng-if="product.numReviews">
+            <app-rating-stars class="rating-stars"
+              title="Rating: {{ product.customerRating }}"
+              rating="{{ product.customerRating }}"></app-rating-stars>
+            <span>({{ product.numReviews }})</span>
+          </span>
         </td>
       </tr>
     </tbody>
 
   </table>
 </div>
-

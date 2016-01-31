@@ -1,5 +1,5 @@
 .container {
-  margin-top: 5%;
+  margin: 5% auto;
 }
 
 a {
@@ -9,6 +9,15 @@ a {
 .loader {
   margin: 60px auto;
   text-align: center;
+}
+
+.fa-star,
+.fa-star-half {
+  color: #FFA518;
+}
+
+.fa-star-empty {
+  color: #ddd;
 }
 
 .product-name img {
@@ -22,4 +31,5 @@ a {
 /* Override bootstrap's table vertical alignment. */
 .product-table > tbody > tr > td {
   vertical-align: middle;
+  font-size: 13px;
 }
