@@ -46,14 +46,24 @@ app.service('WalmartService', function(
   });
 });
 
+app.service('UtilService', function($state) {
+
+  this.saveQueryToURL = function(params) {
+    $state.transitionTo($state.current.name, params, {notify: false});
+  };
+
+});
+
 
 /********************************************************************
 * CONTROLLERS
 *********************************************************************/
-app.controller('HomeController', function ($scope, WalmartService) {
+app.controller('HomeController', function (
+  $scope, WalmartService, UtilService) {
 
+  $scope.loaderActive = false;
   $scope.hideAdvanced = false;
-  $scope.results = null;
+  $scope.products = null;
   $scope.sortCriteria = [
     {value: 'relevance', display: 'Relevance'},
     {value: 'price', display: 'Price'},
@@ -69,16 +79,22 @@ app.controller('HomeController', function ($scope, WalmartService) {
 
   $scope.submitForm = function(form) {
     if (!form.$valid) { return; }
+    $scope.loaderActive = true;
 
-    var promise = WalmartService.one('search').get({
+    var params = {
       query: $scope.query,
       sort: $scope.sortBy,
       start: $scope.start,
-      numItems: $scope.numItems
-    });
+      numItems: $scope.numItems,
+      facet: 'on'
+    };
 
+    // UtilService.saveQueryToURL(params);
+
+    var promise = WalmartService.one('search').get(params);
     promise.then(function(data) {
-      $scope.results = data.items;
+      $scope.loaderActive = false;
+      $scope.products = data.items;
     });
 
   };

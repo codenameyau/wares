@@ -5,3 +5,21 @@
 a {
   cursor: pointer;
 }
+
+.loader {
+  margin: 60px auto;
+  text-align: center;
+}
+
+.product-name img {
+  max-width: 60px;
+}
+
+.product-table > thead > tr > td {
+  font-weight: bold;
+}
+
+/* Override bootstrap's table vertical alignment. */
+.product-table > tbody > tr > td {
+  vertical-align: middle;
+}
