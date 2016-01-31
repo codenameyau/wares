@@ -2,10 +2,11 @@
 Angular Walmart app
 
 ### Local Instructions
-Serve up a local http server using either python or node. We'll use port
-9001 to server http requests. Then visit your browser at `http://localhost:9001/`.
+- In the terminal, Change directory to the project root or public folder.
+- Serve a local http server using either python or node.
+- Then visit your browser at `http://localhost:9001/`.
 
-```
+```bash
 # Node
 http-server -p 9001 c-1
 

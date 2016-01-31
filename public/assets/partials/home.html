@@ -57,10 +57,12 @@
       </div>
     </div>
 
-    <div class="col-md-1">
+    <div class="col-md-2">
       <label></label>
       <div>
-        <button ng-click="submitForm(searchForm)" class="btn btn-primary">Add Products</button>
+        <button ng-click="submitForm(searchForm)" class="btn btn-primary btn-full">
+          Add Products
+        </button>
       </div>
     </div>
   </div>
@@ -77,15 +79,17 @@
 
 <!-- Results table. -->
 <div class="row">
-  <table class="product-table table table-striped" ng-if="products" >
+  <div class="col-md-12">
+  <table class="product-table table table-striped table-bordered" ng-if="products">
     <thead>
       <tr>
         <td>Product</td>
         <td>Brand Name</td>
         <td>Category</td>
         <td>Price</td>
-        <td>MSRP</td>
+        <td title="Manufacturer's suggested retail price">MSRP</td>
         <td>Reviews</td>
+        <td></td>
       </tr>
     </thead>
 
@@ -126,8 +130,15 @@
             <span>({{ product.numReviews }})</span>
           </span>
         </td>
+
+        <td class="product-remove text-center">
+          <a ng-click="removeProduct(product)">
+            <i class="fa fa-times"></i>
+          </a>
+        </td>
+
       </tr>
     </tbody>
-
   </table>
+  </div>
 </div>

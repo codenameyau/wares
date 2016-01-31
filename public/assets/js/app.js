@@ -38,7 +38,7 @@ app.service('WalmartService', function(
     RestangularConfigurer.setBaseUrl(WALMART_API);
     RestangularConfigurer.setJsonp(true);
     RestangularConfigurer.setDefaultRequestParams('jsonp',
-      {callback: 'JSON_CALLBACK'});
+      { callback: 'JSON_CALLBACK' });
     RestangularConfigurer.setDefaultRequestParams({
       format: 'json',
       apiKey: WALMART_KEY
@@ -56,12 +56,12 @@ app.controller('HomeController', function ($scope, WalmartService) {
   $scope.hideAdvanced = false;
   $scope.products = null;
   $scope.sortCriteria = [
-    {value: 'relevance', display: 'Relevance'},
-    {value: 'price', display: 'Price'},
-    {value: 'title', display: 'Title'},
-    {value: 'bestseller', display: 'Best Seller'},
-    {value: 'customerRating', display: 'Customer Rating'},
-    {value: 'new', display: 'New'}
+    { value: 'relevance', display: 'Relevance' },
+    { value: 'price', display: 'Price' },
+    { value: 'title', display: 'Title' },
+    { value: 'bestseller', display: 'Best Seller' },
+    { value: 'customerRating', display: 'Customer Rating' },
+    { value: 'new', display: 'New' }
   ];
 
   $scope.toggleHideAdvanced = function() {
@@ -75,7 +75,7 @@ app.controller('HomeController', function ($scope, WalmartService) {
     var params = {
       query: $scope.query,
       sort: $scope.sortBy,
-      start: $scope.start,
+      start: $scope.startAt,
       numItems: $scope.numItems,
       facet: 'on'
     };
@@ -113,7 +113,7 @@ app.directive('appRatingStars', function() {
   return {
     restrict: 'E',
     transclude: true,
-    scope: {rating: '@'}, // '@' represents one-way binding.
+    scope: { rating: '@' }, // '@' represents one-way binding.
 
     controller: function($scope) {
       $scope.stars = [];
