@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.6/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="./assets/css/style.css">
+  <link rel="stylesheet" href="./assets/css/alerts.css">
 
   <!-- Scripts -->
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -24,6 +25,8 @@
 
 <!-- Start of our angular application. -->
 <body ng-app="walmart-app">
+  <div ng-include="'./assets/partials/alerts.html'"></div>
+
   <div class="container">
     <div ui-view></div>
   </div>

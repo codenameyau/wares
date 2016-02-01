@@ -14,7 +14,7 @@ app.constant('WALMART_API', 'http://api.walmartlabs.com/v1/');
 
 
 /********************************************************************
-* ROUTE CONFIGURATION
+* APP CONFIGURATION
 *********************************************************************/
 app.config(function(
   $stateProvider, $urlRouterProvider, localStorageServiceProvider,
@@ -36,6 +36,14 @@ app.config(function(
 
 
 /********************************************************************
+* APP RUN
+*********************************************************************/
+app.run(function($rootScope) {
+  $rootScope.alerts = {};
+});
+
+
+/********************************************************************
 * SERVICES
 *********************************************************************/
 app.service('WalmartService', function(Restangular, WALMART_API, WALMART_KEY) {
@@ -51,6 +59,23 @@ app.service('WalmartService', function(Restangular, WALMART_API, WALMART_KEY) {
       apiKey: WALMART_KEY
     });
   });
+});
+
+app.service('AlertService', function($timeout, $rootScope) {
+
+  this.alertTime = 3000;
+
+  this.clearAlertAfterwards = function(name, time) {
+    $timeout(function() {
+      $rootScope.alerts[name] = null;
+    }, time || this.alertTime);
+  };
+
+  this.warn = function(message) {
+    $rootScope.alerts.warning = message;
+    this.clearAlertAfterwards('warning');
+  };
+
 });
 
 app.service('StorageService', function(localStorageService) {
@@ -92,7 +117,7 @@ app.service('StorageService', function(localStorageService) {
 * CONTROLLERS
 *********************************************************************/
 app.controller('HomeController', function (
-  $scope, $window, WalmartService, StorageService) {
+  $scope, $window, WalmartService, AlertService, StorageService) {
 
   // Controls the ordering of products.
   $scope.orderCriteria = 'name';
@@ -139,11 +164,18 @@ app.controller('HomeController', function (
       params['facet.filter'] = 'brand:' + _.capitalize($scope.brandName);
     }
 
-    // First retrieve the search results.
+    // Send request to retrieve the search results.
     WalmartService.one('search').get(params).then(function(data) {
-      var results = data.items;
+
+      // Show alert if no results are found.
+      if (!data.totalResults) {
+        $scope.isLoading = false;
+        AlertService.warn(data.message);
+        return;
+      }
 
       // Then retrieve the brand name from the product API.
+      var results = data.items;
       var productIds = _.map(results, function(product) {
         return product.itemId;
       });

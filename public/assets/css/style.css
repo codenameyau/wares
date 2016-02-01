@@ -13,31 +13,10 @@ a {
   width: 100%;
 }
 
-.td-inline-image,
-.td-inline-text {
-  display: inline-block;
-  vertical-align: middle;
+.btn .fa {
+  margin-right: 8px;
 }
 
-.td-inline-image {
-  width: 20%;
-  float: left;
-}
-
-.td-inline-text {
-  width: 75%;
-  float: right;
-}
-
-/* Overrides bootstrap table row hover. */
-.table-hover tbody tr:hover td,
-.table-hover tbody tr:hover th {
-  background: #EFFFED;
-}
-
-/********************************************************************
-* APP LOADER
-*********************************************************************/
 .loader {
   margin: 60px auto;
   text-align: center;
@@ -72,7 +51,8 @@ a {
 
 .product-table > thead > tr > td {
   font-weight: bold;
-  min-width: 80px;
+  min-width: 50px;
+  white-space: nowrap;
 }
 
 /* Override bootstrap's table vertical alignment. */
@@ -93,4 +73,26 @@ a {
 .product-remove .fa {
   color: #EC4646;
   font-size: 1.5em;
+}
+
+.td-inline-image,
+.td-inline-text {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.td-inline-image {
+  width: 20%;
+  float: left;
+}
+
+.td-inline-text {
+  width: 75%;
+  float: right;
+}
+
+/* Override bootstrap table row hover. */
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  background: #ffffcc;
 }

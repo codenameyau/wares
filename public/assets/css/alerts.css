@@ -1,0 +1,26 @@
+/********************************************************************
+* APP ALERTS
+*********************************************************************/
+.alerts {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  z-index: 999;
+}
+
+.alerts .fa {
+  color: #444;
+}
+
+.alerts .alerts-info,
+.alerts .alerts-warning,
+.alerts .alerts-error {
+  padding: 12px 20px;
+  border-radius: 6px;
+  letter-spacing: 1px;
+}
+
+.alerts .alerts-warning {
+  background: rgba(255, 254, 136, 0.70);
+  color: #444;
+}
