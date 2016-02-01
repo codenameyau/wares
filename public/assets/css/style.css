@@ -13,6 +13,20 @@ a {
   width: 100%;
 }
 
+.td-inline-image,
+.td-inline-text {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.td-inline-image {
+  width: 20%;
+}
+
+.td-inline-text {
+  width: 78%;
+}
+
 /********************************************************************
 * APP LOADER
 *********************************************************************/
@@ -38,14 +52,26 @@ a {
 /********************************************************************
 * PRODUCT TABLE
 *********************************************************************/
+.products {
+  margin-top: 30px;
+}
+
+.product-count {
+  font-size: 20px;
+  color: #999;
+  text-align: right;
+}
+
 .product-table > thead > tr > td {
   font-weight: bold;
+  min-width: 60px;
 }
 
 /* Override bootstrap's table vertical alignment. */
 .product-table > tbody > tr > td {
   vertical-align: middle;
   font-size: 13px;
+  max-width: 350px;
 }
 
 .product-name img {

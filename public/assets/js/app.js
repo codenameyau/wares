@@ -95,7 +95,11 @@ app.service('StorageService', function(localStorageService) {
 * CONTROLLERS
 *********************************************************************/
 app.controller('HomeController', function (
-  $scope, WalmartService, StorageService) {
+  $scope, $window, WalmartService, StorageService) {
+
+  // Controls the ordering of products.
+  $scope.orderCriteria = 'name';
+  $scope.orderReverse = false;
 
   $scope.isLoading = false;
   $scope.hideAdvanced = false;
@@ -111,6 +115,15 @@ app.controller('HomeController', function (
 
   $scope.toggleHideAdvanced = function() {
     $scope.hideAdvanced = !$scope.hideAdvanced;
+  };
+
+  $scope.setOrderCriteria = function(value) {
+    var orderBefore = $scope.orderCriteria;
+    if (orderBefore === value) {
+      $scope.orderReverse = !$scope.orderReverse;
+    } else {
+      $scope.orderCriteria = value;
+    }
   };
 
   $scope.submitForm = function(form) {
@@ -140,8 +153,11 @@ app.controller('HomeController', function (
   };
 
   $scope.removeAllProducts = function() {
-    StorageService.clearStorage();
-    $scope.products = [];
+    var confirm = $window.confirm('Remove all items?');
+    if (confirm) {
+      StorageService.clearStorage();
+      $scope.products = [];
+    }
   };
 
 });
@@ -155,20 +171,18 @@ app.directive('appLoader', function() {
     restrict: 'E',
     replace: true,
 
-    template: function() {
-      return [
-        '<div ng-if="isLoading" class="loader">',
-        '<i class="fa fa-5x fa-crosshairs fa-spin"></i>',
-        '</div>'
-      ].join(' ');
-    }
+    template: [
+      '<div ng-if="isLoading" class="loader">',
+      '<i class="fa fa-5x fa-refresh fa-spin"></i>',
+      '</div>'
+    ].join(' ')
   };
 });
 
 app.directive('appRatingStars', function() {
   return {
     restrict: 'E',
-    transclude: true,
+    replace: true,
     scope: { rating: '@' }, // '@' represents one-way binding.
 
     controller: function($scope) {
@@ -184,14 +198,27 @@ app.directive('appRatingStars', function() {
       populateStars(numEmptyStars, 'empty');
     },
 
-    template: function() {
-      return [
-        '<span ng-repeat="n in stars track by $index">',
-        '<i ng-if="n === \'full\'" class="fa fa-star"></i>',
-        '<i ng-if="n === \'half\'" class="fa fa-star-half"></i>',
-        '<i ng-if="n === \'empty\'" class="fa fa-star fa-star-empty"></i>',
-        '</span>'
-      ].join(' ');
-    }
+    template: [
+      '<span ng-repeat="n in stars track by $index">',
+      '<i ng-if="n === \'full\'" class="fa fa-star"></i>',
+      '<i ng-if="n === \'half\'" class="fa fa-star-half"></i>',
+      '<i ng-if="n === \'empty\'" class="fa fa-star fa-star-empty"></i>',
+      '</span>'
+    ].join(' ')
+  };
+});
+
+app.directive('appOrderCaret', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: { criteria: '@' },
+
+    template: [
+      '<span>',
+      '<i ng-if="$parent.orderCriteria === criteria && !$parent.orderReverse" class="fa fa-caret-down"></i>',
+      '<i ng-if="$parent.orderCriteria === criteria && $parent.orderReverse" class="fa fa-caret-up"></i>',
+      '</span>'
+    ].join(' ')
   };
 });

@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-3">
       <div class="form-group">
-        <label for="query">Search Product</label>
+        <label for="query">Query</label>
         <input type="text" id="query" name="query"
                class="form-control"
                placeholder="Required"
@@ -78,31 +78,72 @@
 <app-loader></app-loader>
 
 <!-- Results table. -->
-<div class="row"  ng-if="products.length">
+<div class="products" ng-if="products.length">
+  <div class="row">
+  <div class="col-md-9">
+    <div class="form-group">
+      <input type="text" name="numItems" class="form-control"
+             placeholder="Search products by name, brand, category, or price"
+             ng-model="searchProducts">
+    </div>
+  </div>
+  <div class="col-md-2 product-count">
+    <span>{{ filteredProducts.length }} of {{ products.length }} products</span>
+  </div>
+  </div>
+
+  <div class="row">
   <div class="col-md-12">
   <table class="product-table table table-striped table-bordered">
     <thead>
       <tr>
-        <td>Product</td>
-        <td>Brand Name</td>
-        <td>Category</td>
-        <td>Price</td>
-        <td title="Manufacturer's suggested retail price">MSRP</td>
-        <td>Reviews</td>
+        <td title="Order by product name">
+          <a ng-click="setOrderCriteria('name')">Product</a>
+          <app-order-caret criteria="name"></app-order-caret>
+        </td>
+
+        <td title="Order by brand name">
+          Brand Name
+        </td>
+
+        <td title="Order by category">
+          <a ng-click="setOrderCriteria('categoryPath')">Category</a>
+          <app-order-caret criteria="categoryPath"></app-order-caret>
+        </td>
+
+        <td title="Order by price">
+          <a ng-click="setOrderCriteria('salePrice')">Price</a>
+          <app-order-caret criteria="salePrice"></app-order-caret>
+        </td>
+
+        <td title="Manufacturer's suggested retail price">
+          <a ng-click="setOrderCriteria('msrp')">MSRP</a>
+          <app-order-caret criteria="msrp"></app-order-caret>
+        </td>
+
+        <td title="Order by customer ratings">
+          <a ng-click="setOrderCriteria('customerRating')">Reviews</a>
+        </td>
+
         <td title="Removes all items">
-          <a ng-click="removeAllProducts()">All</a>
+          <a ng-click="removeAllProducts()">Remove All</a>
         </td>
       </tr>
     </thead>
 
     <tbody>
-      <tr ng-repeat="product in products">
+      <tr ng-repeat="product in filteredProducts = (products | filter:searchProducts
+          | orderBy:orderCriteria:orderReverse )">
         <td class="product-name">
-          <img ng-src="{{ product.thumbnailImage }}" alt="Product Thumbnail">
-          <span>{{ product.name }}</span>
-          <a target="_blank" href="{{ product.productUrl }}">
-            <i class="fa fa-external-link"></i>
-          </a>
+          <div class="td-inline-image">
+            <img ng-src="{{ ::product.thumbnailImage }}" alt="Product Thumbnail">
+          </div>
+          <div class="td-inline-text">
+            <span title="{{ product.name }}">{{ ::product.name }}</span>
+            <a target="_blank" href="{{ product.productUrl }}">
+              <i class="fa fa-lg fa-external-link"></i>
+            </a>
+          </div>
         </td>
 
         <td class="product-brand">
@@ -111,25 +152,24 @@
 
         <td class="product-category">
           <span title="{{ product.categoryPath }}">
-            {{ product.categoryPath | limitTo:50 }}
-            {{ product.categoryPath.length > 50 ? '&hellip;' : '' }}
+            {{ ::product.categoryPath }}
           </span>
         </td>
 
         <td class="product-price">
-          {{ product.salePrice }}
+          {{ ::product.salePrice }}
         </td>
 
         <td class="product-msrp">
-          <span ng-if="product.msrp">{{ product.msrp }}</span>
+          <span ng-if="product.msrp">{{ ::product.msrp }}</span>
         </td>
 
         <td class="product-reviews">
           <span ng-if="product.numReviews">
             <app-rating-stars class="rating-stars"
-              title="Rating: {{ product.customerRating }}"
-              rating="{{ product.customerRating }}"></app-rating-stars>
-            <span>({{ product.numReviews }})</span>
+              title="Rating: {{ ::product.customerRating }}"
+              rating="{{ ::product.customerRating }}"></app-rating-stars>
+            <span>({{ ::product.numReviews }})</span>
           </span>
         </td>
 
@@ -138,9 +178,9 @@
             <i class="fa fa-times"></i>
           </a>
         </td>
-
       </tr>
     </tbody>
   </table>
+  </div>
   </div>
 </div>
