@@ -38,8 +38,7 @@ app.config(function(
 /********************************************************************
 * SERVICES
 *********************************************************************/
-app.service('WalmartService', function(
-  $http, Restangular, WALMART_API, WALMART_KEY) {
+app.service('WalmartService', function(Restangular, WALMART_API, WALMART_KEY) {
 
   // Create a custom Restangular instance for Walmart JSONP requests.
   return Restangular.withConfig(function(RestangularConfigurer) {
@@ -57,11 +56,9 @@ app.service('WalmartService', function(
 app.service('StorageService', function(localStorageService) {
 
   this.getAllItems = function() {
-    var items = [];
-    var keys = localStorageService.keys();
-    for (var i=0; i<keys.length; i++) {
-      items.push(localStorageService.get(keys[i]));
-    } return items;
+    return _.map(localStorageService.keys(), function(key) {
+      return localStorageService.get(key);
+    });
   };
 
   this.storeItem = function(item, key) {
@@ -100,7 +97,6 @@ app.controller('HomeController', function (
   // Controls the ordering of products.
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
-
   $scope.isLoading = false;
   $scope.hideAdvanced = false;
   $scope.products = StorageService.getAllItems();
@@ -134,16 +130,39 @@ app.controller('HomeController', function (
       query: $scope.query,
       sort: $scope.sortBy,
       start: $scope.startAt,
-      numItems: $scope.numItems,
-      facet: 'on'
+      numItems: $scope.numItems
     };
 
-    var promise = WalmartService.one('search').get(params);
+    // Brand params are slightly trickier with v1 API so do it here.
+    if ($scope.brandName) {
+      params.facet = 'on';
+      params['facet.filter'] = 'brand:' + _.capitalize($scope.brandName);
+    }
 
-    promise.then(function(data) {
-      $scope.isLoading = false;
-      StorageService.storeList(data.items, 'itemId');
-      $scope.products = StorageService.getAllItems();
+    // First retrieve the search results.
+    WalmartService.one('search').get(params).then(function(data) {
+      var results = data.items;
+
+      // Then retrieve the brand name from the product API.
+      var productIds = _.map(results, function(product) {
+        return product.itemId;
+      });
+
+      // Store the brand information in the original data array.
+      WalmartService.one('items').get({ids: productIds.join(',')})
+      .then(function(products) {
+        for (var i=0; i<results.length; i++) {
+          if (results[i].itemId === products.items[i].itemId) {
+            results[i].brandName = products.items[i].brandName;
+            results[i].salePrice = products.items[i].salePrice;
+            results[i].msrp = products.items[i].msrp;
+          }
+        }
+
+        StorageService.storeList(data.items, 'itemId');
+        $scope.products = StorageService.getAllItems();
+        $scope.isLoading = false;
+      });
     });
   };
 

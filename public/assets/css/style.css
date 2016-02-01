@@ -21,10 +21,18 @@ a {
 
 .td-inline-image {
   width: 20%;
+  float: left;
 }
 
 .td-inline-text {
-  width: 78%;
+  width: 75%;
+  float: right;
+}
+
+/* Overrides bootstrap table row hover. */
+.table-hover tbody tr:hover td,
+.table-hover tbody tr:hover th {
+  background: #EFFFED;
 }
 
 /********************************************************************
@@ -58,13 +66,13 @@ a {
 
 .product-count {
   font-size: 20px;
-  color: #999;
+  color: #666;
   text-align: right;
 }
 
 .product-table > thead > tr > td {
   font-weight: bold;
-  min-width: 60px;
+  min-width: 80px;
 }
 
 /* Override bootstrap's table vertical alignment. */
@@ -74,11 +82,15 @@ a {
   max-width: 350px;
 }
 
+.product-name {
+  min-width: 300px;
+}
+
 .product-name img {
   max-width: 60px;
 }
 
 .product-remove .fa {
   color: #EC4646;
-  font-size: 1.4em;
+  font-size: 1.5em;
 }

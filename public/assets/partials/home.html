@@ -1,3 +1,4 @@
+<!-- Top input tools. -->
 <form name="searchForm">
   <div class="row">
     <div class="col-md-3">
@@ -87,14 +88,14 @@
              ng-model="searchProducts">
     </div>
   </div>
-  <div class="col-md-2 product-count">
+  <div class="col-md-3 product-count">
     <span>{{ filteredProducts.length }} of {{ products.length }} products</span>
   </div>
   </div>
 
   <div class="row">
   <div class="col-md-12">
-  <table class="product-table table table-striped table-bordered">
+  <table class="product-table table table-striped table-bordered table-hover">
     <thead>
       <tr>
         <td title="Order by product name">
@@ -103,7 +104,8 @@
         </td>
 
         <td title="Order by brand name">
-          Brand Name
+          <a ng-click="setOrderCriteria('brandName')">Brand Name</a>
+          <app-order-caret criteria="brandName"></app-order-caret>
         </td>
 
         <td title="Order by category">
@@ -123,6 +125,7 @@
 
         <td title="Order by customer ratings">
           <a ng-click="setOrderCriteria('customerRating')">Reviews</a>
+          <app-order-caret criteria="customerRating"></app-order-caret>
         </td>
 
         <td title="Removes all items">
@@ -147,7 +150,7 @@
         </td>
 
         <td class="product-brand">
-          Brand Name
+          {{ ::product.brandName }}
         </td>
 
         <td class="product-category">
@@ -157,18 +160,19 @@
         </td>
 
         <td class="product-price">
-          {{ ::product.salePrice }}
+          <span ng-if="product.salePrice">${{ ::product.salePrice }}</span>
         </td>
 
         <td class="product-msrp">
-          <span ng-if="product.msrp">{{ ::product.msrp }}</span>
+          <span ng-if="product.msrp">${{ ::product.msrp }}</span>
         </td>
 
         <td class="product-reviews">
           <span ng-if="product.numReviews">
             <app-rating-stars class="rating-stars"
               title="Rating: {{ ::product.customerRating }}"
-              rating="{{ ::product.customerRating }}"></app-rating-stars>
+              rating="{{ ::product.customerRating }}">
+            </app-rating-stars>
             <span>({{ ::product.numReviews }})</span>
           </span>
         </td>
