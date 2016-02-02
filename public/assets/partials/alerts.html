@@ -1,5 +1,14 @@
-<div ng-if="alerts.warning || alerts.info || alerts.error" class="alerts">
-  <div class="alerts-warning">
+<div class="alerts"
+     ng-if="alerts.success || alerts.warning || alerts.error">
+  <div class="alert alert-success" ng-if="alerts.success">
+    <i class="fa fa-cart-plus"></i> {{ alerts.success }}
+  </div>
+
+  <div class="alert alert-warning" ng-if="alerts.warning">
     <i class="fa fa-exclamation-triangle"></i> {{ alerts.warning }}
+  </div>
+
+  <div class="alert alert-danger" ng-if="alerts.error">
+    <i class="fa fa-exclamation-triangle"></i> {{ alerts.error }}
   </div>
 </div>

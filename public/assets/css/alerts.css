@@ -1,26 +1,36 @@
 /********************************************************************
-* APP ALERTS
+* APP ALERTS: Currently uses bootstrap alerts for styling.
 *********************************************************************/
 .alerts {
-  position: fixed;
-  top: 10px;
-  right: 10px;
+  position: absolute;
+  top: 15px;
+  right: 15px;
   z-index: 999;
+  cursor: pointer;
+  min-width: 250px;
 }
 
 .alerts .fa {
-  color: #444;
+  margin-right: 5px;
 }
 
-.alerts .alerts-info,
-.alerts .alerts-warning,
-.alerts .alerts-error {
-  padding: 12px 20px;
-  border-radius: 6px;
-  letter-spacing: 1px;
+/********************************************************************
+* APP ALERTS ANIMATION
+*********************************************************************/
+.alerts.ng-enter {
+  transition: 0.3s ease-in-out;
+  opacity: 0;
 }
 
-.alerts .alerts-warning {
-  background: rgba(255, 254, 136, 0.70);
-  color: #444;
+.alerts.ng-enter.ng-enter-active {
+  opacity: 1;
+}
+
+.alerts.ng-leave {
+  transition: 0.3s ease-in-out;
+  opacity: 1;
+}
+
+.alerts.ng-leave.ng-leave-active {
+  opacity: 0;
 }

@@ -1,7 +1,7 @@
 'use strict';
 
 var app = angular.module('walmart-app',
-  ['ui.router', 'restangular', 'LocalStorageModule']);
+  ['ngAnimate', 'ui.router', 'restangular', 'LocalStorageModule']);
 
 // Use relative paths for github pages.
 app.constant('PARTIALS_URL', '../assets/partials/');
@@ -65,17 +65,26 @@ app.service('AlertService', function($timeout, $rootScope) {
 
   this.alertTime = 3000;
 
-  this.clearAlertAfterwards = function(name, time) {
+  this.clearAlertTimeout = function(name, time) {
     $timeout(function() {
       $rootScope.alerts[name] = null;
     }, time || this.alertTime);
   };
 
-  this.warn = function(message) {
-    $rootScope.alerts.warning = message;
-    this.clearAlertAfterwards('warning');
+  this.success = function(message) {
+    $rootScope.alerts.success = message;
+    this.clearAlertTimeout('success');
   };
 
+  this.warn = function(message) {
+    $rootScope.alerts.warning = message;
+    this.clearAlertTimeout('warning');
+  };
+
+  this.error = function(message) {
+    $rootScope.alerts.error = message;
+    this.clearAlertTimeout('error');
+  };
 });
 
 app.service('StorageService', function(localStorageService) {
