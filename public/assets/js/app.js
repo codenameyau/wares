@@ -4,7 +4,7 @@ var app = angular.module('walmart-app',
   ['ngAnimate', 'ui.router', 'restangular', 'LocalStorageModule']);
 
 // Use relative paths for github pages.
-app.constant('PARTIALS_URL', '../assets/partials/');
+app.constant('PARTIALS_URL', './assets/partials/');
 
 // Since we're exposing our API key, let's break it up so bots can't read it.
 app.constant('WALMART_KEY', '8ks2tc' + 'fzcz38' + 'a5xtc8' + 'u67ujk');
@@ -149,7 +149,7 @@ app.controller('HomeController', function (
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
   $scope.isLoading = false;
-  $scope.hideAdvanced = false;
+  $scope.showAdvanced = true;
   $scope.numItems = $scope.numItems || 10;
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
@@ -160,8 +160,8 @@ app.controller('HomeController', function (
     { value: 'new', display: 'New' }
   ];
 
-  $scope.toggleHideAdvanced = function() {
-    $scope.hideAdvanced = !$scope.hideAdvanced;
+  $scope.toggleAdvanced = function() {
+    $scope.showAdvanced = !$scope.showAdvanced;
   };
 
   $scope.setOrderCriteria = function(value) {

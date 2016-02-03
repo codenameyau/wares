@@ -20,41 +20,46 @@
       </div>
     </div>
 
-    <div class="col-md-1">
-      <div class="form-group">
-        <label for="numItems">Results</label>
-        <input type="text" id="numItems" name="numItems"
-               class="form-control"
-               placeholder="10"
-               ng-model="numItems">
+    <div ng-if="showAdvanced">
+      <div class="col-md-1">
+        <div class="form-group">
+          <label for="numItems">Results</label>
+          <input type="text" id="numItems" name="numItems"
+                 class="form-control"
+                 placeholder="10"
+                 ng-model="numItems">
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-1">
-      <div class="form-group">
-        <label for="startAt">Start At</label>
-        <input type="text" id="startAt" name="startAt"
-               class="form-control"
-               placeholder="0"
-               ng-model="startAt">
+      <div class="col-md-1">
+        <div class="form-group">
+          <label for="startAt">Start At</label>
+          <input type="text" id="startAt" name="startAt"
+                 class="form-control"
+                 placeholder="0"
+                 ng-model="startAt">
+        </div>
       </div>
-    </div>
 
-    <div class="col-md-2">
-      <label for="form_sort_by">Sort By</label>
-      <select id="form_sort_by" name="sortBy"
-              class="form-control"
-              ng-model="sortBy"
-              ng-init="sortBy = sortBy || sortCriteria[0].value"
-              ng-options="criteria.value as criteria.display for criteria in sortCriteria">
-        </option>
-      </select>
+      <div class="col-md-2">
+        <label for="form_sort_by">Sort By</label>
+        <select id="form_sort_by" name="sortBy"
+                class="form-control"
+                ng-model="sortBy"
+                ng-init="sortBy = sortBy || sortCriteria[0].value"
+                ng-options="criteria.value as criteria.display for criteria in sortCriteria">
+          </option>
+        </select>
+      </div>
     </div>
 
     <div class="col-md-1">
       <label></label>
       <div>
-        <a ng-click="toggleHideAdvanced()">Hide Advanced</a>
+        <a ng-click="toggleAdvanced()">
+          <span ng-show="showAdvanced">Hide Advanced</span>
+          <span ng-show="!showAdvanced">Show Advanced</span>
+        </a>
       </div>
     </div>
 
