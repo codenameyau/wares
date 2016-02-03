@@ -36,17 +36,10 @@ app.config(function(
 
 
 /********************************************************************
-* APP RUN
-*********************************************************************/
-app.run(function($rootScope) {
-  $rootScope.alerts = {};
-});
-
-
-/********************************************************************
 * SERVICES
 *********************************************************************/
-app.service('WalmartService', function(Restangular, WALMART_API, WALMART_KEY) {
+app.service('WalmartRestangular', function(
+  Restangular, WALMART_API, WALMART_KEY) {
 
   // Create a custom Restangular instance for Walmart JSONP requests.
   return Restangular.withConfig(function(RestangularConfigurer) {
@@ -63,31 +56,44 @@ app.service('WalmartService', function(Restangular, WALMART_API, WALMART_KEY) {
 
 app.service('AlertService', function($timeout, $rootScope) {
 
+  $rootScope.alerts = {
+    success: {},
+    warning: {},
+    error: {}
+  };
+
   this.alertTime = 3000;
 
   this.clearAlertTimeout = function(name, time) {
     $timeout(function() {
-      $rootScope.alerts[name] = null;
+      $rootScope.alerts[name] = {};
     }, time || this.alertTime);
   };
 
-  this.success = function(message) {
-    $rootScope.alerts.success = message;
+  this.success = function(message, icon) {
+    $rootScope.alerts.success.message = message;
+    $rootScope.alerts.success.icon = icon;
     this.clearAlertTimeout('success');
   };
 
-  this.warn = function(message) {
-    $rootScope.alerts.warning = message;
+  this.warn = function(message, icon) {
+    $rootScope.alerts.warning.message = message;
+    $rootScope.alerts.warning.icon = icon;
     this.clearAlertTimeout('warning');
   };
 
-  this.error = function(message) {
-    $rootScope.alerts.error = message;
+  this.error = function(message, icon) {
+    $rootScope.alerts.error.message = message;
+    $rootScope.alerts.error.icon = icon;
     this.clearAlertTimeout('error');
   };
 });
 
 app.service('StorageService', function(localStorageService) {
+
+  this.getItem = function(key) {
+    return localStorageService.get(key);
+  };
 
   this.getAllItems = function() {
     return _.map(localStorageService.keys(), function(key) {
@@ -95,20 +101,8 @@ app.service('StorageService', function(localStorageService) {
     });
   };
 
-  this.storeItem = function(item, key) {
-    var storedItem = localStorageService.get(item[key]);
-    if (storedItem) {
-      // User should be notified that item already exists.
-      console.log(storedItem);
-    } else {
-      return localStorageService.set(item[key], item);
-    }
-  };
-
-  this.storeList = function(list, key) {
-    for (var i=0; i<list.length; i++) {
-      this.storeItem(list[i], key);
-    }
+  this.setItem = function(key, value) {
+    return localStorageService.set(key, value);
   };
 
   this.removeItem = function(key) {
@@ -121,19 +115,84 @@ app.service('StorageService', function(localStorageService) {
 
 });
 
+app.service('ProductService', function(StorageService) {
+  // Make products an object to check for duplicate entries.
+  this.products = {};
+
+  this.loadItems = function() {
+    var items = StorageService.getAllItems();
+    for (var i=0; i<items.length; i++) {
+      var item = items[i];
+      this.products[item.itemId] = item;
+    }
+  };
+
+  // Returns a boolean of whether the item was added.
+  this.addItem = function(item, addDuplicates) {
+    var itemInProducts = this.products[item.itemId];
+    var itemAdded = false;
+    if (itemInProducts && addDuplicates) {
+      itemInProducts.quantity++;
+      itemAdded = true;
+    } else if (!itemInProducts) {
+      item.quantity = 1;
+      this.products[item.itemId] = item;
+      StorageService.setItem(item.itemId, item);
+      itemAdded = true;
+    }
+    return itemAdded;
+  };
+
+  // Returns the number of items added.
+  this.addItems = function(items, addDuplicates) {
+    var numItemsAdded = 0;
+    for (var i=0; i<items.length; i++) {
+      var itemAdded = this.addItem(items[i], addDuplicates);
+      if (itemAdded) {
+        numItemsAdded++;
+      }
+    }
+    return numItemsAdded;
+  };
+
+  // Returns a boolean of whether the item was removed.
+  this.removeItem = function(itemId) {
+    var item = this.products[itemId];
+    if (item) {
+      item.quantity--;
+
+      if (item.quanity < 1) {
+        delete this.products[item];
+        StorageService.removeItem(itemId);
+      } else {
+        StorageService.setItem(item.itemId, item);
+      }
+    }
+  };
+
+  this.removeAllItems = function() {
+    StorageService.clearStorage();
+    this.products = {};
+  };
+
+});
+
 
 /********************************************************************
 * CONTROLLERS
 *********************************************************************/
 app.controller('HomeController', function (
-  $scope, $window, WalmartService, AlertService, StorageService) {
+  $scope, $window, WalmartRestangular, AlertService, ProductService) {
 
-  // Controls the ordering of products.
+  // Load the products from local storage.
+  ProductService.loadItems();
+  $scope.products = ProductService.products;
+
+  // Instantiate variables to controls features.
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.hideAdvanced = false;
-  $scope.products = StorageService.getAllItems();
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
     { value: 'price', display: 'Price' },
@@ -174,12 +233,12 @@ app.controller('HomeController', function (
     }
 
     // Send request to retrieve the search results.
-    WalmartService.one('search').get(params).then(function(data) {
+    WalmartRestangular.one('search').get(params).then(function(data) {
 
       // Show alert if no results are found.
       if (!data.totalResults) {
         $scope.isLoading = false;
-        AlertService.warn(data.message);
+        AlertService.warn(data.message, 'fa-exclamation-triangle');
         return;
       }
 
@@ -190,7 +249,7 @@ app.controller('HomeController', function (
       });
 
       // Store the brand information in the original data array.
-      WalmartService.one('items').get({ids: productIds.join(',')})
+      WalmartRestangular.one('items').get({ids: productIds.join(',')})
       .then(function(products) {
         for (var i=0; i<results.length; i++) {
           if (results[i].itemId === products.items[i].itemId) {
@@ -200,23 +259,23 @@ app.controller('HomeController', function (
           }
         }
 
-        StorageService.storeList(data.items, 'itemId');
-        $scope.products = StorageService.getAllItems();
+        var itemsAdded = ProductService.addItems(data.items);
+        var alertMessage = 'Added ' + itemsAdded + ' new items.';
+        AlertService.success(alertMessage, 'fa-cart-plus');
         $scope.isLoading = false;
       });
     });
   };
 
   $scope.removeProduct = function(product) {
-    StorageService.removeItem(product.itemId);
-    $scope.products = StorageService.getAllItems();
+    ProductService.removeItem(product.itemId);
   };
 
   $scope.removeAllProducts = function() {
     var confirm = $window.confirm('Remove all items?');
     if (confirm) {
-      StorageService.clearStorage();
-      $scope.products = [];
+      ProductService.removeAllItems();
+      AlertService.success('All products were removed.', 'fa-trash');
     }
   };
 
@@ -280,5 +339,19 @@ app.directive('appOrderCaret', function() {
       '<i ng-if="$parent.orderCriteria === criteria && $parent.orderReverse" class="fa fa-caret-up"></i>',
       '</span>'
     ].join(' ')
+  };
+});
+
+
+/********************************************************************
+* FILTERS
+*********************************************************************/
+app.filter('isEmpty', function() {
+  return function(obj) {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false;
+      }
+    } return true;
   };
 });
