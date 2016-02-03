@@ -1,14 +1,17 @@
 <div class="alerts"
-     ng-if="alerts.success || alerts.warning || alerts.error">
-  <div class="alert alert-success" ng-if="alerts.success">
-    <i class="fa fa-cart-plus"></i> {{ alerts.success }}
+     ng-if="alerts.success.message || alerts.warning.message || alerts.error.message">
+  <div class="alert alert-success" ng-if="alerts.success.message">
+    <i ng-if="alerts.success.icon" class="fa fa-lg {{ alerts.success.icon }}"></i>
+    <strong>{{ alerts.success.message }}</strong>
   </div>
 
-  <div class="alert alert-warning" ng-if="alerts.warning">
-    <i class="fa fa-exclamation-triangle"></i> {{ alerts.warning }}
+  <div class="alert alert-warning" ng-if="alerts.warning.message">
+    <i ng-if="alerts.warning.icon" class="fa fa-lg {{ alerts.warning.icon }}"></i>
+    <strong>{{ alerts.warning.message }}</strong>
   </div>
 
-  <div class="alert alert-danger" ng-if="alerts.error">
-    <i class="fa fa-exclamation-triangle"></i> {{ alerts.error }}
+  <div class="alert alert-danger" ng-if="alerts.error.message">
+    <i ng-if="alerts.error.icon" class="fa fa-lg {{ alerts.error.icon }}"></i>
+    <strong>{{ alerts.error.message }}</strong>
   </div>
 </div>

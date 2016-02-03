@@ -2,7 +2,7 @@
 * APP ALERTS: Currently uses bootstrap alerts for styling.
 *********************************************************************/
 .alerts {
-  position: absolute;
+  position: fixed;
   top: 15px;
   right: 15px;
   z-index: 999;
