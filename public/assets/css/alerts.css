@@ -18,7 +18,7 @@
 * APP ALERTS ANIMATION
 *********************************************************************/
 .alerts.ng-enter {
-  transition: 0.3s ease-in-out;
+  transition: 0.35s ease-in;
   opacity: 0;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .alerts.ng-leave {
-  transition: 0.3s ease-in-out;
+  transition: 0.35s ease-in;
   opacity: 1;
 }
 

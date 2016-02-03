@@ -54,6 +54,7 @@ app.service('WalmartRestangular', function(
   });
 });
 
+
 app.service('AlertService', function($timeout, $rootScope) {
 
   $rootScope.alerts = {
@@ -89,6 +90,7 @@ app.service('AlertService', function($timeout, $rootScope) {
   };
 });
 
+
 app.service('StorageService', function(localStorageService) {
 
   this.getItem = function(key) {
@@ -99,6 +101,17 @@ app.service('StorageService', function(localStorageService) {
     return _.map(localStorageService.keys(), function(key) {
       return localStorageService.get(key);
     });
+  };
+
+  this.getItemSet = function(items) {
+    items = items || this.getAllItems();
+    var set = {};
+    for (var i=0; i<items.length; i++) {
+      var item = items[i];
+      if (!set[item.itemId]) {
+        set[item.itemId] = item;
+      }
+    } return set;
   };
 
   this.setItem = function(key, value) {
@@ -128,12 +141,16 @@ app.service('StorageService', function(localStorageService) {
 app.controller('HomeController', function (
   $scope, $window, WalmartRestangular, AlertService, StorageService) {
 
+  // Used to store products and detect duplicate items.
+  $scope.products = StorageService.getAllItems();
+  $scope.productSet = StorageService.getItemSet($scope.products);
+
   // Controls the ordering of products.
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.hideAdvanced = false;
-  $scope.products = StorageService.getAllItems();
+  $scope.numItems = $scope.numItems || 10;
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
     { value: 'price', display: 'Price' },
@@ -160,11 +177,14 @@ app.controller('HomeController', function (
     if (!form.$valid) { return; }
     $scope.isLoading = true;
 
+    // Clamp max number of items to 20 because of API constraints.
+    var clampedNumItem = $scope.numItems <= 20 ? $scope.numItems : 20;
+
     var params = {
       query: $scope.query,
       sort: $scope.sortBy,
       start: $scope.startAt,
-      numItems: $scope.numItems
+      numItems: clampedNumItem
     };
 
     // Brand params are slightly trickier with v1 API so do it here.
@@ -189,29 +209,65 @@ app.controller('HomeController', function (
         return product.itemId;
       });
 
-      // Store the brand information in the original data array.
+      // Make an additional API call to retrieve brand (supports 20 ids).
       WalmartRestangular.one('items').get({ids: productIds.join(',')})
       .then(function(products) {
+
+        var duplicateItems = [];
+        var newItems = [];
+
+        // Add items, potentially ignoring duplicates based on user input.
         for (var i=0; i<results.length; i++) {
-          if (results[i].itemId === products.items[i].itemId) {
-            results[i].brandName = products.items[i].brandName;
-            results[i].salePrice = products.items[i].salePrice;
-            results[i].msrp = products.items[i].msrp;
+          var result = results[i];
+
+          // Store brand and other potentially missing information.
+          if (result.itemId === products.items[i].itemId) {
+            result.brandName = products.items[i].brandName;
+            result.salePrice = products.items[i].salePrice;
+            result.msrp = products.items[i].msrp;
+          }
+
+          // Check if item is duplicate and add to appropriate array.
+          if ($scope.productSet[result.itemId]) {
+            duplicateItems.push(result);
+          } else {
+            newItems.push(result);
+            $scope.productSet[result.itemId] = result;
           }
         }
 
-        StorageService.storeList(data.items, 'itemId');
-        $scope.products = StorageService.getAllItems();
+        // Ask the user whether duplicate items should be stored.
+        var addDuplicates;
+        if (duplicateItems.length > 0) {
+          addDuplicates = $window.confirm('There are ' +
+            duplicateItems.length + ' duplicate items. Add them anyways?');
+        }
 
-        var alertMessage = 'Added ' + data.items.length + ' new items.';
-        AlertService.success(alertMessage, 'fa-cart-plus');
+        // Add duplicate items based on the user's response.
+        if (addDuplicates) {
+          newItems = newItems.concat(duplicateItems);
+        }
+
+        // Add new items to storage and refresh the table.
+        StorageService.storeList(newItems, 'itemId');
+        $scope.products = StorageService.getAllItems();
         $scope.isLoading = false;
+
+        // Build and display the alert message.
+        var message = 'Added ' + newItems.length + ' new items.';
+        message += ' There were ' + duplicateItems.length + ' duplicates.';
+        if (newItems.length > 0) {
+          AlertService.success(message, 'fa-cart-plus');
+        } else {
+          AlertService.warn(message, 'fa-shopping-cart');
+        }
       });
     });
   };
 
   $scope.removeProduct = function(product) {
     StorageService.removeItem(product.itemId);
+    delete $scope.productSet[product.itemId];
     $scope.products = StorageService.getAllItems();
   };
 
@@ -219,8 +275,9 @@ app.controller('HomeController', function (
     var confirm = $window.confirm('Remove all items?');
     if (confirm) {
       StorageService.clearStorage();
-      $scope.products = [];
-      AlertService.success('All products were removed.', 'fa-trash');
+      $scope.products = StorageService.getAllItems();
+      $scope.productSet = StorageService.getItemSet($scope.products);
+      AlertService.success('All products removed.', 'fa-trash');
     }
   };
 
