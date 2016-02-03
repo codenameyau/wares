@@ -145,7 +145,7 @@ app.controller('HomeController', function (
   $scope.products = StorageService.getAllItems();
   $scope.productSet = StorageService.getItemSet($scope.products);
 
-  // Controls the ordering of products.
+  // Controls other features.
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
   $scope.isLoading = false;

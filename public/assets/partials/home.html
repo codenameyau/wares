@@ -136,7 +136,7 @@
 
     <tbody>
       <tr ng-repeat="product in filteredProducts = (products | filter:searchProducts
-          | orderBy:orderCriteria:orderReverse )">
+          | orderBy: orderCriteria: orderReverse )">
         <td class="product-name">
           <div class="td-inline-image">
             <img ng-src="{{ ::product.thumbnailImage }}" alt="Product Thumbnail">
