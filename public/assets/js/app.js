@@ -135,11 +135,21 @@ app.service('StorageService', function(localStorageService) {
 });
 
 
+app.service('UtilService', function () {
+
+  this.clamp = function(value, min, max, defaultValue) {
+    value = (value === undefined) ? defaultValue : value;
+    return Math.max(min, Math.min(value, max));
+  };
+
+});
+
 /********************************************************************
 * CONTROLLERS
 *********************************************************************/
 app.controller('HomeController', function (
-  $scope, $window, WalmartRestangular, AlertService, StorageService) {
+  $scope, $window, WalmartRestangular, AlertService, StorageService,
+  UtilService) {
 
   // Used to store products and detect duplicate items.
   $scope.products = StorageService.getAllItems();
@@ -177,15 +187,14 @@ app.controller('HomeController', function (
     if (!form.$valid) { return; }
     $scope.isLoading = true;
 
-    // Clamp max number of items to 20 because of API constraints.
-    $scope.form.numItems = $scope.form.numItems === undefined ? 10: $scope.form.numItems;
-    var clampedNumItems = $scope.form.numItems <= 20 ? $scope.form.numItems : 20;
+    // Clamp number of items to 20 because of API constraints. Default is 10.
+    $scope.form.numItems = UtilService.clamp($scope.form.numItems, 0, 20, 10);
 
     var params = {
       query: $scope.form.query,
       sort: $scope.form.sortBy,
       start: $scope.form.startAt,
-      numItems: clampedNumItems
+      numItems: $scope.form.numItems
     };
 
     // Brand params are slightly trickier with v1 API so do it here.
