@@ -146,11 +146,11 @@ app.controller('HomeController', function (
   $scope.productSet = StorageService.getItemSet($scope.products);
 
   // Controls other features.
+  $scope.form = {};
   $scope.orderCriteria = 'name';
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.showAdvanced = true;
-  $scope.numItems = $scope.numItems || 10;
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
     { value: 'price', display: 'Price' },
@@ -178,19 +178,20 @@ app.controller('HomeController', function (
     $scope.isLoading = true;
 
     // Clamp max number of items to 20 because of API constraints.
-    var clampedNumItem = $scope.numItems <= 20 ? $scope.numItems : 20;
+    $scope.form.numItems = $scope.form.numItems === undefined ? 10: $scope.form.numItems;
+    var clampedNumItems = $scope.form.numItems <= 20 ? $scope.form.numItems : 20;
 
     var params = {
-      query: $scope.query,
-      sort: $scope.sortBy,
-      start: $scope.startAt,
-      numItems: clampedNumItem
+      query: $scope.form.query,
+      sort: $scope.form.sortBy,
+      start: $scope.form.startAt,
+      numItems: clampedNumItems
     };
 
     // Brand params are slightly trickier with v1 API so do it here.
-    if ($scope.brandName) {
+    if ($scope.form.brandName) {
       params.facet = 'on';
-      params['facet.filter'] = 'brand:' + _.capitalize($scope.brandName);
+      params['facet.filter'] = 'brand:' + _.capitalize($scope.form.brandName);
     }
 
     // Send request to retrieve the search results.

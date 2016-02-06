@@ -7,7 +7,7 @@
         <input type="text" id="query" name="query"
                class="form-control"
                placeholder="Required"
-               ng-model="query" required>
+               ng-model="form.query" required>
       </div>
     </div>
 
@@ -16,7 +16,7 @@
         <label for="brandName">Brand Name</label>
         <input type="text" id="brandName" name="brandName"
                class="form-control"
-               ng-model="brandName">
+               ng-model="form.brandName">
       </div>
     </div>
 
@@ -27,7 +27,7 @@
           <input type="text" id="numItems" name="numItems"
                  class="form-control"
                  placeholder="10"
-                 ng-model="numItems">
+                 ng-model="form.numItems">
         </div>
       </div>
 
@@ -37,7 +37,7 @@
           <input type="text" id="startAt" name="startAt"
                  class="form-control"
                  placeholder="0"
-                 ng-model="startAt">
+                 ng-model="form.startAt">
         </div>
       </div>
 
@@ -45,8 +45,8 @@
         <label for="form_sort_by">Sort By</label>
         <select id="form_sort_by" name="sortBy"
                 class="form-control"
-                ng-model="sortBy"
-                ng-init="sortBy = sortBy || sortCriteria[0].value"
+                ng-model="form.sortBy"
+                ng-init="form.sortBy = form.sortBy || sortCriteria[0].value"
                 ng-options="criteria.value as criteria.display for criteria in sortCriteria">
           </option>
         </select>
@@ -88,9 +88,9 @@
   <div class="row">
   <div class="col-md-9">
     <div class="form-group">
-      <input type="text" name="numItems" class="form-control"
+      <input type="text" name="searchProducts" class="form-control"
              placeholder="Search products by name, brand, category, or price"
-             ng-model="searchProducts">
+             ng-model="form.searchProducts">
     </div>
   </div>
   <div class="col-md-3 product-count">
