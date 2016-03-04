@@ -140,7 +140,7 @@
     </thead>
 
     <tbody>
-      <tr ng-repeat="product in filteredProducts = (products | filter:searchProducts
+      <tr ng-repeat="product in filteredProducts = (products | filter:form.searchProducts
           | orderBy: orderCriteria: orderReverse )">
         <td class="product-name">
           <div class="td-inline-image">
