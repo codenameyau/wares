@@ -86,16 +86,46 @@
 <!-- Results table. -->
 <div class="products" ng-if="products.length">
   <div class="row">
-  <div class="col-md-9">
+  <div class="col-md-6">
     <div class="form-group">
       <input type="text" name="searchProducts" class="form-control"
              placeholder="Search products by name, brand, category, or price"
              ng-model="form.searchProducts">
     </div>
   </div>
-  <div class="col-md-3 product-count">
-    <span>{{ filteredProducts.length }} of {{ products.length }} products</span>
+
+  <!-- Pagination -->
+  <div ng-if="pageMax > 1">
+    <div class="col-md-4 page-count">
+      <ul class="pagination">
+        <li ng-class="{'disabled': pageNumber === 0}">
+          <a ng-click="pageBack()" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-number" ng-repeat="i in getPageNumbers()"
+            ng-class="{'active': pageNumber === i}">
+          <a ng-click="setPage(i)">{{ $index + 1}}</a>
+        </li>
+        <li ng-class="{'disabled': pageNumber >= pageMax - 1}">
+          <a ng-click="pageNext()" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="col-md-2 product-count">
+      <span>{{ products.length }} total products</span>
+    </div>
   </div>
+
+  <!-- Results Count -->
+  <div ng-if="pageMax < 2">
+    <div class="col-md-6 product-count">
+      <span>{{ filteredProducts.length }} of {{ products.length }} products</span>
+    </div>
+  </div>
+
   </div>
 
   <div class="row">
@@ -140,8 +170,10 @@
     </thead>
 
     <tbody>
-      <tr ng-repeat="product in filteredProducts = (products | filter:form.searchProducts
-          | orderBy: orderCriteria: orderReverse )">
+      <tr ng-repeat="product in filteredProducts = (products
+          | orderBy: orderCriteria: orderReverse
+          | startAt: pageOffset | filter:form.searchProducts
+          | limitTo: resultsPerPage )">
         <td class="product-name">
           <div class="td-inline-image">
             <img ng-src="{{ ::product.thumbnailImage }}" alt="Product Thumbnail">

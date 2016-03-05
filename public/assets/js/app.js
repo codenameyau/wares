@@ -161,6 +161,11 @@ app.controller('HomeController', function (
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.showAdvanced = true;
+  $scope.pageNumber = 0;
+  $scope.pageOffset = 0;
+  $scope.resultsPerPage = 25;
+  $scope.pageMax = 0;
+
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
     { value: 'price', display: 'Price' },
@@ -172,6 +177,32 @@ app.controller('HomeController', function (
 
   $scope.toggleAdvanced = function() {
     $scope.showAdvanced = !$scope.showAdvanced;
+  };
+
+  $scope.getPageNumbers = function() {
+    return _.range($scope.pageMax);
+  };
+
+  $scope.setPage = function(pageNumber) {
+    // Handles the case where all items are removed but max page numbers
+    // remains the same. So perform a calibration with page max.
+    $scope.pageMax = Math.ceil($scope.products.length / $scope.resultsPerPage);
+    $scope.pageNumber = ($scope.pageMax > 0) ? pageNumber : 0;
+    $scope.pageOffset = $scope.pageNumber * $scope.resultsPerPage;
+  };
+
+  $scope.setPage(0);
+
+  $scope.pageBack = function() {
+    if ($scope.pageNumber > 0) {
+      $scope.setPage(--$scope.pageNumber);
+    }
+  };
+
+  $scope.pageNext = function() {
+    if ($scope.pageNumber < $scope.pageMax - 1) {
+      $scope.setPage(++$scope.pageNumber);
+    }
   };
 
   $scope.setOrderCriteria = function(value) {
@@ -262,6 +293,7 @@ app.controller('HomeController', function (
         StorageService.storeList(newItems, 'itemId');
         $scope.products = StorageService.getAllItems();
         $scope.isLoading = false;
+        $scope.setPage($scope.pageNumber);
 
         // Build and display the alert message.
         var message = 'Added ' + newItems.length + ' new items.';
@@ -278,6 +310,7 @@ app.controller('HomeController', function (
   $scope.removeProduct = function(product) {
     StorageService.removeItem(product.itemId);
     delete $scope.productSet[product.itemId];
+    $scope.setPage($scope.pageNumber);
     $scope.products = StorageService.getAllItems();
   };
 
@@ -287,10 +320,21 @@ app.controller('HomeController', function (
       StorageService.clearStorage();
       $scope.products = StorageService.getAllItems();
       $scope.productSet = StorageService.getItemSet($scope.products);
+      $scope.setPage(0);
       AlertService.success('All products removed.', 'fa-trash');
     }
   };
 
+});
+
+
+/********************************************************************
+* FILTERS
+*********************************************************************/
+app.filter('startAt', function() {
+  return function(list, offset) {
+    return list.slice(offset);
+  };
 });
 
 
