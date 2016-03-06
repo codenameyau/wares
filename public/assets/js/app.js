@@ -161,10 +161,8 @@ app.controller('HomeController', function (
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.showAdvanced = true;
-  $scope.pageNumber = 0;
-  $scope.pageOffset = 0;
   $scope.resultsPerPage = 25;
-  $scope.pageMax = 0;
+  $scope.pageNumber = 0;
 
   $scope.sortCriteria = [
     { value: 'relevance', display: 'Relevance' },
@@ -177,32 +175,6 @@ app.controller('HomeController', function (
 
   $scope.toggleAdvanced = function() {
     $scope.showAdvanced = !$scope.showAdvanced;
-  };
-
-  $scope.getPageNumbers = function() {
-    return _.range($scope.pageMax);
-  };
-
-  $scope.setPage = function(pageNumber) {
-    // Handles the case where all items are removed but max page numbers
-    // remains the same. So perform a calibration with page max.
-    $scope.pageMax = Math.ceil($scope.products.length / $scope.resultsPerPage);
-    $scope.pageNumber = ($scope.pageMax > 0) ? pageNumber : 0;
-    $scope.pageOffset = $scope.pageNumber * $scope.resultsPerPage;
-  };
-
-  $scope.setPage(0);
-
-  $scope.pageBack = function() {
-    if ($scope.pageNumber > 0) {
-      $scope.setPage(--$scope.pageNumber);
-    }
-  };
-
-  $scope.pageNext = function() {
-    if ($scope.pageNumber < $scope.pageMax - 1) {
-      $scope.setPage(++$scope.pageNumber);
-    }
   };
 
   $scope.setOrderCriteria = function(value) {
@@ -293,7 +265,7 @@ app.controller('HomeController', function (
         StorageService.storeList(newItems, 'itemId');
         $scope.products = StorageService.getAllItems();
         $scope.isLoading = false;
-        $scope.setPage($scope.pageNumber);
+        // $scope.setPage($scope.pageNumber);
 
         // Build and display the alert message.
         var message = 'Added ' + newItems.length + ' new items.';
@@ -310,7 +282,7 @@ app.controller('HomeController', function (
   $scope.removeProduct = function(product) {
     StorageService.removeItem(product.itemId);
     delete $scope.productSet[product.itemId];
-    $scope.setPage($scope.pageNumber);
+    // $scope.setPage($scope.pageNumber);
     $scope.products = StorageService.getAllItems();
   };
 
@@ -320,7 +292,7 @@ app.controller('HomeController', function (
       StorageService.clearStorage();
       $scope.products = StorageService.getAllItems();
       $scope.productSet = StorageService.getItemSet($scope.products);
-      $scope.setPage(0);
+      // $scope.setPage(0);
       AlertService.success('All products removed.', 'fa-trash');
     }
   };
@@ -339,18 +311,17 @@ app.filter('startAt', function() {
 
 
 /********************************************************************
-* DIRECTIVES
+* DIRECTIVES (ES6: replace template string with `` template tags)
 *********************************************************************/
 app.directive('appLoader', function() {
   return {
     restrict: 'E',
     replace: true,
 
-    template: [
-      '<div ng-if="isLoading" class="loader">',
-      '<i class="fa fa-5x fa-refresh fa-spin"></i>',
-      '</div>'
-    ].join(' ')
+    template: `
+      <div ng-if="isLoading" class="loader">
+      <i class="fa fa-5x fa-refresh fa-spin"></i>
+      </div>`
   };
 });
 
@@ -358,7 +329,9 @@ app.directive('appRatingStars', function() {
   return {
     restrict: 'E',
     replace: true,
-    scope: { rating: '@' }, // '@' represents one-way binding.
+    scope: {
+      rating: '@' // '@' -> one-way binding.
+    },
 
     controller: function($scope) {
       $scope.stars = [];
@@ -373,13 +346,12 @@ app.directive('appRatingStars', function() {
       populateStars(numEmptyStars, 'empty');
     },
 
-    template: [
-      '<span ng-repeat="n in stars track by $index">',
-      '<i ng-if="n === \'full\'" class="fa fa-star"></i>',
-      '<i ng-if="n === \'half\'" class="fa fa-star-half"></i>',
-      '<i ng-if="n === \'empty\'" class="fa fa-star fa-star-empty"></i>',
-      '</span>'
-    ].join(' ')
+    template: `
+      <span ng-repeat="n in stars track by $index">
+      <i ng-if="n === 'full'" class="fa fa-star"></i>
+      <i ng-if="n === 'half'" class="fa fa-star-half"></i>
+      <i ng-if="n === 'empty'" class="fa fa-star fa-star-empty"></i>
+      </span>`
   };
 });
 
@@ -387,13 +359,81 @@ app.directive('appOrderCaret', function() {
   return {
     restrict: 'E',
     replace: true,
-    scope: { criteria: '@' },
+    scope: {
+      criteria: '@'
+    },
 
-    template: [
-      '<span>',
-      '<i ng-if="$parent.orderCriteria === criteria && !$parent.orderReverse" class="fa fa-caret-down"></i>',
-      '<i ng-if="$parent.orderCriteria === criteria && $parent.orderReverse" class="fa fa-caret-up"></i>',
-      '</span>'
-    ].join(' ')
+    template: `
+      <span>
+      <i ng-if="$parent.orderCriteria === criteria && !$parent.orderReverse" class="fa fa-caret-down"></i>
+      <i ng-if="$parent.orderCriteria === criteria && $parent.orderReverse" class="fa fa-caret-up"></i>
+      </span>`
+  };
+});
+
+app.directive('appPagination', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      'resultsTotal': '=',
+      'resultsPerPage': '=',
+      'pageNumber': '='
+    },
+
+    controller: function($scope) {
+      $scope.pageMax = 0;
+
+      $scope.calcPageMax = function() {
+        var total = $scope.resultsTotal + ($scope.pageNumber * $scope.resultsPerPage);
+        $scope.pageMax = Math.ceil(total / $scope.resultsPerPage);
+      };
+
+      $scope.setPage = function(pageNumber) {
+        $scope.pageNumber =
+          ($scope.pageNumber < 0) ? 0 :
+          ($scope.pageNumber > $scope.pageMax) ? $scope.pageMax : pageNumber;
+      };
+
+      $scope.getPageNumbers = function() {
+        return _.range($scope.pageMax);
+      };
+
+      $scope.pageBack = function() {
+        if ($scope.pageNumber > 0) {
+          $scope.setPage(--$scope.pageNumber);
+        }
+      };
+
+      $scope.pageNext = function() {
+        if ($scope.pageNumber < $scope.pageMax - 1) {
+          $scope.setPage(++$scope.pageNumber);
+        }
+      };
+
+      // Run at directive creation.
+      $scope.$watch('resultsTotal', function() {
+        $scope.calcPageMax();
+        $scope.setPage($scope.pageNumber);
+      });
+    },
+
+    template: `
+      <ul class="pagination">
+        <li ng-class="{'disabled': pageNumber === 0}">
+          <a ng-click="pageBack()" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <li class="page-number" ng-repeat="i in getPageNumbers()"
+            ng-class="{'active': pageNumber === i}">
+          <a ng-click="setPage(i)">{{ $index + 1}}</a>
+        </li>
+        <li ng-class="{'disabled': pageNumber >= pageMax - 1}">
+          <a ng-click="pageNext()" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>`
   };
 });
