@@ -161,7 +161,7 @@ app.controller('HomeController', function (
   $scope.orderReverse = false;
   $scope.isLoading = false;
   $scope.showAdvanced = true;
-  $scope.resultsPerPage = 25;
+  $scope.resultsPerPage = 20;
   $scope.pageNumber = 0;
 
   $scope.sortCriteria = [
@@ -396,7 +396,29 @@ app.directive('appPagination', function() {
       };
 
       $scope.getPageNumbers = function() {
-        return _.range($scope.pageMax);
+        var pages = [];
+
+        if (!$scope.pageMax || $scope.pageMax < 8) {
+          pages = _.range($scope.pageMax);
+        }
+
+        else {
+          // Include the first two pages.
+          pages.push(0);
+          pages.push(1);
+
+          // Include the current page and the pages before and after it.
+          var cutoffLow = 1;
+          var cutoffHigh = $scope.pageMax - 2;
+
+          if ($scope.pageNumber > cutoffLow && $scope.pageNumber < cutoffHigh) {
+            pages.push($scope.pageNumber);
+          }
+
+          // Include the last two pages.
+          pages.push($scope.pageMax - 2);
+          pages.push($scope.pageMax - 1);
+        } return pages;
       };
 
       $scope.pageBack = function() {
@@ -425,9 +447,9 @@ app.directive('appPagination', function() {
             <span aria-hidden="true">&laquo;</span>
           </a>
         </li>
-        <li class="page-number" ng-repeat="i in getPageNumbers()"
+        <li class="page-number" ng-repeat="i in (pages = getPageNumbers()) track by $index"
             ng-class="{'active': pageNumber === i}">
-          <a ng-click="setPage(i)">{{ $index + 1}}</a>
+          <a href="#" ng-click="setPage(i)">{{ i + 1 }}</a>
         </li>
         <li ng-class="{'disabled': pageNumber >= pageMax - 1}">
           <a ng-click="pageNext()" aria-label="Next">
