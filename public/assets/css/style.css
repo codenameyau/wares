@@ -48,8 +48,11 @@ a {
 }
 
 .product-count {
-  font-size: 20px;
+  font-size: 18px;
   color: #666;
+}
+
+.page-count {
   text-align: right;
 }
 

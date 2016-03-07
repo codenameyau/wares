@@ -86,142 +86,123 @@
 <!-- Results table. -->
 <div class="products" ng-if="products.length">
   <div class="row">
-  <div class="col-md-6">
-    <div class="form-group">
-      <input type="text" name="searchProducts" class="form-control"
-             placeholder="Search products by name, brand, category, or price"
-             ng-model="form.searchProducts">
+    <div class="col-md-5">
+      <div class="form-group">
+        <input type="text" name="searchProducts" class="form-control"
+               placeholder="Search products by name, brand, category, or price"
+               ng-model="form.searchProducts">
+      </div>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  <div ng-if="pageMax > 1">
-    <div class="col-md-4 page-count">
-      <ul class="pagination">
-        <li ng-class="{'disabled': pageNumber === 0}">
-          <a ng-click="pageBack()" aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <li class="page-number" ng-repeat="i in getPageNumbers()"
-            ng-class="{'active': pageNumber === i}">
-          <a ng-click="setPage(i)">{{ $index + 1}}</a>
-        </li>
-        <li ng-class="{'disabled': pageNumber >= pageMax - 1}">
-          <a ng-click="pageNext()" aria-label="Next">
-            <span aria-hidden="true">&raquo;</span>
-          </a>
-        </li>
-      </ul>
-    </div>
+    <!-- Pagination -->
     <div class="col-md-2 product-count">
-      <span>{{ products.length }} total products</span>
+      <span>{{ filteredProducts.length + (pageNumber * resultsPerPage) }} Results</span>
     </div>
-  </div>
 
-  <!-- Results Count -->
-  <div ng-if="pageMax < 2">
-    <div class="col-md-6 product-count">
-      <span>{{ filteredProducts.length }} of {{ products.length }} products</span>
+    <div class="col-md-5 page-count">
+      <app-pagination
+        results-total="filteredProducts.length"
+        results-per-page="resultsPerPage"
+        page-number="pageNumber">
+      </app-pagination>
     </div>
-  </div>
-
   </div>
 
   <div class="row">
-  <div class="col-md-12">
-  <table class="product-table table table-striped table-bordered table-hover">
-    <thead>
-      <tr>
-        <td title="Order by product name">
-          <a ng-click="setOrderCriteria('name')">Product</a>
-          <app-order-caret criteria="name"></app-order-caret>
-        </td>
+    <div class="col-md-12">
+    <table class="product-table table table-striped table-bordered table-hover">
+      <thead>
+        <tr>
+          <td title="Order by product name">
+            <a ng-click="setOrderCriteria('name')">Product</a>
+            <app-order-caret criteria="name"></app-order-caret>
+          </td>
 
-        <td title="Order by brand name">
-          <a ng-click="setOrderCriteria('brandName')">Brand Name</a>
-          <app-order-caret criteria="brandName"></app-order-caret>
-        </td>
+          <td title="Order by brand name">
+            <a ng-click="setOrderCriteria('brandName')">Brand Name</a>
+            <app-order-caret criteria="brandName"></app-order-caret>
+          </td>
 
-        <td title="Order by category">
-          <a ng-click="setOrderCriteria('categoryPath')">Category</a>
-          <app-order-caret criteria="categoryPath"></app-order-caret>
-        </td>
+          <td title="Order by category">
+            <a ng-click="setOrderCriteria('categoryPath')">Category</a>
+            <app-order-caret criteria="categoryPath"></app-order-caret>
+          </td>
 
-        <td title="Order by price">
-          <a ng-click="setOrderCriteria('salePrice')">Price</a>
-          <app-order-caret criteria="salePrice"></app-order-caret>
-        </td>
+          <td title="Order by price">
+            <a ng-click="setOrderCriteria('salePrice')">Price</a>
+            <app-order-caret criteria="salePrice"></app-order-caret>
+          </td>
 
-        <td title="Manufacturer's suggested retail price">
-          <a ng-click="setOrderCriteria('msrp')">MSRP</a>
-          <app-order-caret criteria="msrp"></app-order-caret>
-        </td>
+          <td title="Manufacturer's suggested retail price">
+            <a ng-click="setOrderCriteria('msrp')">MSRP</a>
+            <app-order-caret criteria="msrp"></app-order-caret>
+          </td>
 
-        <td title="Order by customer ratings">
-          <a ng-click="setOrderCriteria('customerRating')">Reviews</a>
-          <app-order-caret criteria="customerRating"></app-order-caret>
-        </td>
+          <td title="Order by customer ratings">
+            <a ng-click="setOrderCriteria('customerRating')">Reviews</a>
+            <app-order-caret criteria="customerRating"></app-order-caret>
+          </td>
 
-        <td title="Removes all items">
-          <a ng-click="removeAllProducts()">Remove All</a>
-        </td>
-      </tr>
-    </thead>
+          <td title="Removes all items">
+            <a ng-click="removeAllProducts()">Remove All</a>
+          </td>
+        </tr>
+      </thead>
 
-    <tbody>
-      <tr ng-repeat="product in filteredProducts = (products
-          | orderBy: orderCriteria: orderReverse
-          | startAt: pageOffset | filter:form.searchProducts
-          | limitTo: resultsPerPage )">
-        <td class="product-name">
-          <div class="td-inline-image">
-            <img ng-src="{{ ::product.thumbnailImage }}" alt="Product Thumbnail">
-          </div>
-          <div class="td-inline-text">
-            <span title="{{ product.name }}">{{ ::product.name }}</span>
-            <a target="_blank" href="{{ product.productUrl }}">
-              <i class="fa fa-lg fa-external-link"></i>
+      <tbody>
+        <tr ng-repeat="product in (filteredProducts = (products
+            | filter:form.searchProducts
+            | orderBy: orderCriteria: orderReverse
+            | startAt: pageNumber * resultsPerPage ))
+            | limitTo: resultsPerPage">
+          <td class="product-name">
+            <div class="td-inline-image">
+              <img ng-src="{{ ::product.thumbnailImage }}" alt="Product Thumbnail">
+            </div>
+            <div class="td-inline-text">
+              <span title="{{ product.name }}">{{ ::product.name }}</span>
+              <a target="_blank" href="{{ product.productUrl }}">
+                <i class="fa fa-lg fa-external-link"></i>
+              </a>
+            </div>
+          </td>
+
+          <td class="product-brand">
+            {{ ::product.brandName }}
+          </td>
+
+          <td class="product-category">
+            <span title="{{ product.categoryPath }}">
+              {{ ::product.categoryPath }}
+            </span>
+          </td>
+
+          <td class="product-price">
+            <span ng-if="product.salePrice">${{ ::product.salePrice }}</span>
+          </td>
+
+          <td class="product-msrp">
+            <span ng-if="product.msrp">${{ ::product.msrp }}</span>
+          </td>
+
+          <td class="product-reviews">
+            <span ng-if="product.numReviews">
+              <app-rating-stars class="rating-stars"
+                title="Rating: {{ ::product.customerRating }}"
+                rating="{{ ::product.customerRating }}">
+              </app-rating-stars>
+              <span>({{ ::product.numReviews }})</span>
+            </span>
+          </td>
+
+          <td class="product-remove text-center">
+            <a ng-click="removeProduct(product)">
+              <i class="fa fa-times"></i>
             </a>
-          </div>
-        </td>
-
-        <td class="product-brand">
-          {{ ::product.brandName }}
-        </td>
-
-        <td class="product-category">
-          <span title="{{ product.categoryPath }}">
-            {{ ::product.categoryPath }}
-          </span>
-        </td>
-
-        <td class="product-price">
-          <span ng-if="product.salePrice">${{ ::product.salePrice }}</span>
-        </td>
-
-        <td class="product-msrp">
-          <span ng-if="product.msrp">${{ ::product.msrp }}</span>
-        </td>
-
-        <td class="product-reviews">
-          <span ng-if="product.numReviews">
-            <app-rating-stars class="rating-stars"
-              title="Rating: {{ ::product.customerRating }}"
-              rating="{{ ::product.customerRating }}">
-            </app-rating-stars>
-            <span>({{ ::product.numReviews }})</span>
-          </span>
-        </td>
-
-        <td class="product-remove text-center">
-          <a ng-click="removeProduct(product)">
-            <i class="fa fa-times"></i>
-          </a>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-  </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
   </div>
 </div>
